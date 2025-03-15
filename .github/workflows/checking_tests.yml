@@ -23,7 +23,7 @@ jobs:
 
             - name: Run Build
               run: npm run build
-
+              #I think this is the correct command. The server needs to be started for the tests run
             - name: Run Start
               run: npm run start
 
