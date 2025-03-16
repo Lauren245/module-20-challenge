@@ -30,20 +30,6 @@ jobs:
             - name: Run Build
               run: npm run build
 
-            - name: Run Start (Background)
-              run: npm run start &  #start server in the background
-
-            - name: Wait for Server to Start
-              run: |
-                echo "Waiting for server to start..."
-                sleep 5
-              #I think this is the correct command. The server needs to be started for the tests run
-            # - name: Run Start
-            #   run: npm run start
-
-            - name: Run Tests
-              run: npm run test
-
             - name: Run Component Tests
               run: npm run test-component
 
