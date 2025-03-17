@@ -1,14 +1,11 @@
-import { defineConfig } from 'cypress';
-import viteConfig from './vite.config';
+const { defineConfig } = require('cypress');
 
-export default defineConfig({
-  component: {
-    port: 5173,
-    devServer: {
-      framework: 'react',
-      bundler: 'vite',
-      viteConfig,
-    },
+module.exports = defineConfig({
+  reporter: 'cypress-mochawesome-reporter',
+  reporterOptions: {
+    reportDir: 'cypress/results',
+    overwrite: false,
+    html: false,
+    json: true
   },
-
 });
