@@ -31,7 +31,7 @@ jobs:
               run: npm run build
 
             - name: Run Component Tests
-              run: npm run test-component
+              run: npm run test
 
 
         
