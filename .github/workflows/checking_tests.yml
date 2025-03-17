@@ -1,7 +1,7 @@
 name: Cypress Component Tests
 
 on: [push, pull_request]
-
+#fix this so it is only happens when a PR is made to the develop branch
 jobs:
   component-tests:
     runs-on: ubuntu-latest
@@ -17,40 +17,73 @@ jobs:
       - name: Install Dependencies
         run: npm ci
 
-      - name: Create Cypress Results Directory
-        run: mkdir -p cypress/results
+      - name: Install dependencies
+        run: npm install
 
-      - name: List Cypress Results Directory
-        run: ls -lah cypress/results/
+      - name: Run Cypress tests
+        run: npx cypress run --reporter mochawesome --reporter-options reportDir=cypress/results,overwrite=false,html=false,json=true
 
-      - name: Run Cypress Component Tests
-        run: |
-          npx cypress run --component --reporter cypress-mochawesome-reporter --reporter-options "reportDir=cypress/results,json=true"
+      - name: Upload Cypress results
+        uses: actions/upload-artifact@v2
+        with:
+          name: cypress-results
+          path: cypress/results/*.json
 
-      # 🔍 Debug Step 1: Check if the mochawesome.json file exists
-      - name: Verify mochawesome.json Exists
-        run: ls -lah cypress/results/
 
-      # 🔍 Debug Step 2: Find where the mochawesome.json is actually being saved
-      - name: Search for mochawesome.json
-        run: find cypress/ -type f -name "*.json"
+
+# name: Cypress Component Tests
+
+# on: [push, pull_request]
+
+# jobs:
+#   component-tests:
+#     runs-on: ubuntu-latest
+#     steps:
+#       - name: Checkout Code
+#         uses: actions/checkout@v3
+
+#       - name: Setup Node.js
+#         uses: actions/setup-node@v3
+#         with:
+#           node-version: 18
+
+#       - name: Install Dependencies
+#         run: npm ci
+
+#       - name: Create Cypress Results Directory
+#         run: mkdir -p cypress/results
+
+#       - name: List Cypress Results Directory
+#         run: ls -lah cypress/results/
+
+#       - name: Run Cypress Component Tests
+#         run: |
+#           npx cypress run --component --reporter cypress-mochawesome-reporter --reporter-options "reportDir=cypress/results,json=true"
+
+#       # 🔍 Debug Step 1: Check if the mochawesome.json file exists
+#       - name: Verify mochawesome.json Exists
+#         run: ls -lah cypress/results/
+
+#       # 🔍 Debug Step 2: Find where the mochawesome.json is actually being saved
+#       - name: Search for mochawesome.json
+#         run: find cypress/ -type f -name "*.json"
     
 
-      # 🔍 Debug Step 3: Print contents if the file exists
-      - name: Debug Cypress Test Run
-        run: cat cypress/results/mochawesome.json || echo "No report found!"
+#       # 🔍 Debug Step 3: Print contents if the file exists
+#       - name: Debug Cypress Test Run
+#         run: cat cypress/results/mochawesome.json || echo "No report found!"
 
-      - name: Generate Test Summary
-        run: |
-          echo "## Cypress Results" >> $GITHUB_STEP_SUMMARY
-          echo "| Result | Passed ✅ | Failed ❌ | Pending ✋ | Skipped ⏩ | Duration ⏳ |" >> $GITHUB_STEP_SUMMARY
-          echo "|--------|----------|----------|-----------|----------|---------|" >> $GITHUB_STEP_SUMMARY
-          PASSED=$(jq '[.results[].suites[].tests[] | select(.state=="passed")] | length' cypress/results/mochawesome.json)
-          FAILED=$(jq '[.results[].suites[].tests[] | select(.state=="failed")] | length' cypress/results/mochawesome.json)
-          PENDING=$(jq '[.results[].suites[].tests[] | select(.state=="pending")] | length' cypress/results/mochawesome.json)
-          SKIPPED=$(jq '[.results[].suites[].tests[] | select(.state=="skipped")] | length' cypress/results/mochawesome.json)
-          DURATION=$(jq '[.results[].suites[].tests[].duration] | add / 1000' cypress/results/mochawesome.json)
-          echo "| Cypress | $PASSED | $FAILED | $PENDING | $SKIPPED | ${DURATION}s |" >> $GITHUB_STEP_SUMMARY
+#       - name: Generate Test Summary
+#         run: |
+#           echo "## Cypress Results" >> $GITHUB_STEP_SUMMARY
+#           echo "| Result | Passed ✅ | Failed ❌ | Pending ✋ | Skipped ⏩ | Duration ⏳ |" >> $GITHUB_STEP_SUMMARY
+#           echo "|--------|----------|----------|-----------|----------|---------|" >> $GITHUB_STEP_SUMMARY
+#           PASSED=$(jq '[.results[].suites[].tests[] | select(.state=="passed")] | length' cypress/results/mochawesome.json)
+#           FAILED=$(jq '[.results[].suites[].tests[] | select(.state=="failed")] | length' cypress/results/mochawesome.json)
+#           PENDING=$(jq '[.results[].suites[].tests[] | select(.state=="pending")] | length' cypress/results/mochawesome.json)
+#           SKIPPED=$(jq '[.results[].suites[].tests[] | select(.state=="skipped")] | length' cypress/results/mochawesome.json)
+#           DURATION=$(jq '[.results[].suites[].tests[].duration] | add / 1000' cypress/results/mochawesome.json)
+#           echo "| Cypress | $PASSED | $FAILED | $PENDING | $SKIPPED | ${DURATION}s |" >> $GITHUB_STEP_SUMMARY
 
 # name: Test workflow
 
@@ -102,3 +135,5 @@ jobs:
 
 
         
+
+
