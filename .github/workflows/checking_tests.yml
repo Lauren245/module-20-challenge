@@ -40,22 +40,17 @@ jobs:
       - name: Debug Cypress Test Run
         run: cat cypress/results/mochawesome.json || echo "No report found!"
 
-      - name: Generate Cypress report
+      - name: Generate Test Summary
         run: |
-          if [ -f cypress/results/mochawesome.json ]; then
-            PASSED=$(jq '[.results[].suites[].tests[] | select(.state=="passed")] | length' cypress/results/mochawesome.json)
-            FAILED=$(jq '[.results[].suites[].tests[] | select(.state=="failed")] | length' cypress/results/mochawesome.json)
-            PENDING=$(jq '[.results[].suites[].tests[] | select(.state=="pending")] | length' cypress/results/mochawesome.json)
-            SKIPPED=$(jq '[.results[].suites[].tests[] | select(.state=="skipped")] | length' cypress/results/mochawesome.json)
-            DURATION=$(jq '[.results[].suites[].tests[].duration] | add / 1000' cypress/results/mochawesome.json)
-            echo "## Cypress Results" >> $GITHUB_STEP_SUMMARY
-            echo "| Result | Passed ✅ | Failed ❌ | Pending ✋ | Skipped ⏩ | Duration ⏳ |" >> $GITHUB_STEP_SUMMARY
-            echo "|--------|----------|----------|-----------|----------|---------|" >> $GITHUB_STEP_SUMMARY
-            echo "| Cypress | $PASSED | $FAILED | $PENDING | $SKIPPED | ${DURATION}s |" >> $GITHUB_STEP_SUMMARY
-          else
-            echo "No Cypress report found!"
-            exit 1
-          fi
+          echo "## Cypress Results" >> $GITHUB_STEP_SUMMARY
+          echo "| Result | Passed ✅ | Failed ❌ | Pending ✋ | Skipped ⏩ | Duration ⏳ |" >> $GITHUB_STEP_SUMMARY
+          echo "|--------|----------|----------|-----------|----------|---------|" >> $GITHUB_STEP_SUMMARY
+          PASSED=$(jq '[.results[].suites[].tests[] | select(.state=="passed")] | length' cypress/results/mochawesome.json)
+          FAILED=$(jq '[.results[].suites[].tests[] | select(.state=="failed")] | length' cypress/results/mochawesome.json)
+          PENDING=$(jq '[.results[].suites[].tests[] | select(.state=="pending")] | length' cypress/results/mochawesome.json)
+          SKIPPED=$(jq '[.results[].suites[].tests[] | select(.state=="skipped")] | length' cypress/results/mochawesome.json)
+          DURATION=$(jq '[.results[].suites[].tests[].duration] | add / 1000' cypress/results/mochawesome.json)
+          echo "| Cypress | $PASSED | $FAILED | $PENDING | $SKIPPED | ${DURATION}s |" >> $GITHUB_STEP_SUMMARY
 
 # name: Test workflow
 
