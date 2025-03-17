@@ -20,6 +20,9 @@ jobs:
       - name: Create Cypress Results Directory
         run: mkdir -p cypress/results
 
+      - name: List Cypress Results Directory
+        run: ls -lah cypress/results/
+
       - name: Run Cypress Component Tests
         run: |
           npx cypress run --component --reporter cypress-mochawesome-reporter --reporter-options "reportDir=cypress/results,json=true"
