@@ -32,8 +32,9 @@ jobs:
         run: ls -lah cypress/results/
 
       # 🔍 Debug Step 2: Find where the mochawesome.json is actually being saved
-      - name: Locate mochawesome.json
-        run: find cypress/ -type f
+      - name: Search for mochawesome.json
+        run: find cypress/ -type f -name "*.json"
+    
 
       # 🔍 Debug Step 3: Print contents if the file exists
       - name: Debug Cypress Test Run
