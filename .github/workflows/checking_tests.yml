@@ -21,10 +21,20 @@ jobs:
         run: mkdir -p cypress/results
 
       - name: Run Cypress Component Tests
-        run: npx cypress run --component --reporter cypress-mochawesome-reporter
+        run: |
+          npx cypress run --component --reporter cypress-mochawesome-reporter --reporter-options "reportDir=cypress/results,json=true"
 
+      # 🔍 Debug Step 1: Check if the mochawesome.json file exists
       - name: Verify mochawesome.json Exists
         run: ls -lah cypress/results/
+
+      # 🔍 Debug Step 2: Find where the mochawesome.json is actually being saved
+      - name: Locate mochawesome.json
+        run: find cypress/ -type f
+
+      # 🔍 Debug Step 3: Print contents if the file exists
+      - name: Debug Cypress Test Run
+        run: cat cypress/results/mochawesome.json || echo "No report found!"
 
       - name: Generate Test Summary
         run: |
@@ -37,9 +47,6 @@ jobs:
           SKIPPED=$(jq '[.results[].suites[].tests[] | select(.state=="skipped")] | length' cypress/results/mochawesome.json)
           DURATION=$(jq '[.results[].suites[].tests[].duration] | add / 1000' cypress/results/mochawesome.json)
           echo "| Cypress | $PASSED | $FAILED | $PENDING | $SKIPPED | ${DURATION}s |" >> $GITHUB_STEP_SUMMARY
-
-
-
 
 # name: Test workflow
 
