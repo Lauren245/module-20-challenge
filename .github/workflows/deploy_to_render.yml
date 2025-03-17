@@ -7,16 +7,31 @@ on:
         branches:
             - main
 
-
 jobs: 
     ci: 
         runs-on: ubuntu-latest
         steps:
             - uses: actions/checkout@v3
 
+            - name: Debug DEPLOY_URL
+              run: echo "DEPLOY_URL=${{ secrets.RENDER_DEPLOY_HOOK_URL }}"
+
             - name: Deploy
               if: github.ref == 'refs/heads/main'
               env: 
                 DEPLOY_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
               run: |
+                echo "Deploying to $DEPLOY_URL"
                 curl "$DEPLOY_URL"
+# jobs: 
+#     ci: 
+#         runs-on: ubuntu-latest
+#         steps:
+#             - uses: actions/checkout@v3
+
+#             - name: Deploy
+#               if: github.ref == 'refs/heads/main'
+#               env: 
+#                 DEPLOY_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+#               run: |
+#                 curl "$DEPLOY_URL"
