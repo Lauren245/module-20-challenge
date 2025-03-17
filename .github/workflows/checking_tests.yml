@@ -1,50 +1,93 @@
-name: Test workflow
+name: Cypress Component Tests
 
-on:
-    pull_request:
-        branches:
-            - develop
+on: [push, pull_request]
 
 jobs:
-    test:
-        runs-on: ubuntu-latest
-        #hopefully, I won't need to add mongoDB credentials to this.
-        services:
-            mongodb:
-                image: mongo:6.0
-                ports:
-                    - 27017:27017
+  component-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Create Cypress Results Directory
+        run: mkdir -p cypress/results
+
+      - name: Run Cypress Component Tests
+        run: npx cypress run --component --reporter cypress-mochawesome-reporter
+
+      - name: Verify mochawesome.json Exists
+        run: ls -lah cypress/results/
+
+      - name: Generate Test Summary
+        run: |
+          echo "## Cypress Results" >> $GITHUB_STEP_SUMMARY
+          echo "| Result | Passed ✅ | Failed ❌ | Pending ✋ | Skipped ⏩ | Duration ⏳ |" >> $GITHUB_STEP_SUMMARY
+          echo "|--------|----------|----------|-----------|----------|---------|" >> $GITHUB_STEP_SUMMARY
+          PASSED=$(jq '[.results[].suites[].tests[] | select(.state=="passed")] | length' cypress/results/mochawesome.json)
+          FAILED=$(jq '[.results[].suites[].tests[] | select(.state=="failed")] | length' cypress/results/mochawesome.json)
+          PENDING=$(jq '[.results[].suites[].tests[] | select(.state=="pending")] | length' cypress/results/mochawesome.json)
+          SKIPPED=$(jq '[.results[].suites[].tests[] | select(.state=="skipped")] | length' cypress/results/mochawesome.json)
+          DURATION=$(jq '[.results[].suites[].tests[].duration] | add / 1000' cypress/results/mochawesome.json)
+          echo "| Cypress | $PASSED | $FAILED | $PENDING | $SKIPPED | ${DURATION}s |" >> $GITHUB_STEP_SUMMARY
+
+
+
+
+# name: Test workflow
+
+# on:
+#     pull_request:
+#         branches:
+#             - develop
+
+# jobs:
+#     test:
+#         runs-on: ubuntu-latest
+#         #hopefully, I won't need to add mongoDB credentials to this.
+#         services:
+#             mongodb:
+#                 image: mongo:6.0
+#                 ports:
+#                     - 27017:27017
                     
-        steps:
-            - name: Checkout code
-              uses: actions/checkout@v3
+#         steps:
+#             - name: Checkout code
+#               uses: actions/checkout@v3
 
-            - name: Use Node.js 21.x
-              uses: actions/setup-node@v1
-              with: 
-                    node-version: 21.x
+#             - name: Use Node.js 21.x
+#               uses: actions/setup-node@v1
+#               with: 
+#                     node-version: 21.x
         
-            - name: Install Dependencies
-              run: npm install
+#             - name: Install Dependencies
+#               run: npm install
 
-            - name: Run Build
-              run: npm run build
+#             - name: Run Build
+#               run: npm run build
 
-            - name: Run Component Tests
-              run: npm run test
+#             - name: Run Component Tests
+#               run: npm run test
 
               
-            - name: Generate Test Summary
-              run: |
-                echo "## Cypress Results" >> $GITHUB_STEP_SUMMARY
-                echo "| Result | Passed ✅ | Failed ❌ | Pending ✋ | Skipped ⏩ | Duration ⏳ |" >> $GITHUB_STEP_SUMMARY
-                echo "|--------|----------|----------|-----------|----------|---------|" >> $GITHUB_STEP_SUMMARY
-                PASSED=$(jq '[.results[].suites[].tests[] | select(.state=="passed")] | length' cypress/results/mochawesome.json)
-                FAILED=$(jq '[.results[].suites[].tests[] | select(.state=="failed")] | length' cypress/results/mochawesome.json)
-                PENDING=$(jq '[.results[].suites[].tests[] | select(.state=="pending")] | length' cypress/results/mochawesome.json)
-                SKIPPED=$(jq '[.results[].suites[].tests[] | select(.state=="skipped")] | length' cypress/results/mochawesome.json)
-                DURATION=$(jq '[.results[].suites[].tests[].duration] | add / 1000' cypress/results/mochawesome.json)
-                echo "| Cypress | $PASSED | $FAILED | $PENDING | $SKIPPED | ${DURATION}s |" >> $GITHUB_STEP_SUMMARY
+#             - name: Generate Test Summary
+#               run: |
+#                 echo "## Cypress Results" >> $GITHUB_STEP_SUMMARY
+#                 echo "| Result | Passed ✅ | Failed ❌ | Pending ✋ | Skipped ⏩ | Duration ⏳ |" >> $GITHUB_STEP_SUMMARY
+#                 echo "|--------|----------|----------|-----------|----------|---------|" >> $GITHUB_STEP_SUMMARY
+#                 PASSED=$(jq '[.results[].suites[].tests[] | select(.state=="passed")] | length' cypress/results/mochawesome.json)
+#                 FAILED=$(jq '[.results[].suites[].tests[] | select(.state=="failed")] | length' cypress/results/mochawesome.json)
+#                 PENDING=$(jq '[.results[].suites[].tests[] | select(.state=="pending")] | length' cypress/results/mochawesome.json)
+#                 SKIPPED=$(jq '[.results[].suites[].tests[] | select(.state=="skipped")] | length' cypress/results/mochawesome.json)
+#                 DURATION=$(jq '[.results[].suites[].tests[].duration] | add / 1000' cypress/results/mochawesome.json)
+#                 echo "| Cypress | $PASSED | $FAILED | $PENDING | $SKIPPED | ${DURATION}s |" >> $GITHUB_STEP_SUMMARY
 
 
         
