@@ -1,21 +1,20 @@
 import { defineConfig } from 'cypress';
+import viteConfig from './vite.config';
 
 export default defineConfig({
-  reporter: 'cypress-mochawesome-reporter',
-  reporterOptions: {
-    reportDir: 'cypress/results',
-    overwrite: false,
-    html: false,
-    json: true
-  },
   component: {
-    setupNodeEvents(on, config) {
-      require('cypress-mochawesome-reporter/plugin')(on);
-      return config;
-    },
+    port: 5173,
     devServer: {
-      framework: 'react', // Adjust based on your project (Vue, etc.)
-      bundler: 'vite' // Change to Webpack if needed
-    }
-  }
+      framework: 'react',
+      bundler: 'vite',
+      viteConfig,
+    },
+  },
+
+  e2e: {
+    baseUrl: 'http://localhost:3001',
+    setupNodeEvents(on, config) {
+      // implement node event listeners here
+    },
+  },
 });
