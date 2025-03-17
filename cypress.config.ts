@@ -11,10 +11,11 @@ export default defineConfig({
   component: {
     setupNodeEvents(on, config) {
       require('cypress-mochawesome-reporter/plugin')(on);
+      return config;
     },
     devServer: {
-      framework: 'react', // Change this based on your framework
-      bundler: 'vite' // Or Webpack, depending on your setup
+      framework: 'react', // Adjust based on your project (Vue, etc.)
+      bundler: 'vite' // Change to Webpack if needed
     }
   }
 });
